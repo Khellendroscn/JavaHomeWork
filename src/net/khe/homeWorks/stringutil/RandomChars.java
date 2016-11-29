@@ -1,6 +1,5 @@
 package net.khe.homeWorks.stringutil;
 
-import com.sun.tools.javac.code.Attribute;
 import net.khe.util.Generator;
 import net.khe.util.RandomGenerator;
 
