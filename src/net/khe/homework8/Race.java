@@ -3,7 +3,10 @@ package net.khe.homework8;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.ImageFilter;
+import java.awt.image.ImageObserver;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -15,19 +18,30 @@ public class Race extends JFrame{
     private Player rabbit = new Rabbit(1000,(int distance)->updateRabbit(distance));
     private Player turtle = new Turtle(1000,(int distance)->updateTurtle(distance));
     private JPanel showPanel = new ShowPanel();
-    private BufferedImage cache = new BufferedImage(500,100,BufferedImage.TYPE_INT_ARGB);
+    private BufferedImage cache = new BufferedImage(600,100,BufferedImage.TYPE_INT_ARGB);
+    private ImageIcon rabbitImg = new ImageIcon("race_img/rabbit.png");
+    private ImageIcon turtleImg = new ImageIcon("race_img/turtle.png");
+    private ExecutorService exec = Executors.newCachedThreadPool();
     public void updateRabbit(int distance){
-        int width = distance/2;
+        int x = distance/2;
         Graphics g = cache.getGraphics();
+        g.setColor(Color.WHITE);
+        g.fillRect(0,0,cache.getWidth(),cache.getHeight()/2);
         g.setColor(Color.RED);
-        g.fillRect(0,10,width,30);
+        g.drawLine(500,0,500,100);
+        g.drawImage(rabbitImg.getImage(),x,10,
+                rabbitImg.getIconWidth(),rabbitImg.getIconHeight(),null);
         showPanel.repaint();
     }
     public void updateTurtle(int distance){
-        int width = distance/2;
+        int x = distance/2;
         Graphics g = cache.getGraphics();
-        g.setColor(Color.BLUE);
-        g.fillRect(0,60,width,30);
+        g.setColor(Color.WHITE);
+        g.fillRect(0,60,cache.getWidth(),cache.getHeight()/2);
+        g.setColor(Color.RED);
+        g.drawLine(500,0,500,100);
+        g.drawImage(turtleImg.getImage(),x,60,
+                turtleImg.getIconWidth(),turtleImg.getIconHeight(),null);
         showPanel.repaint();
     }
     class ShowPanel extends JPanel{
@@ -41,25 +55,18 @@ public class Race extends JFrame{
         setSize(600,150);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         add(BorderLayout.CENTER,showPanel);
-        add(BorderLayout.WEST,new JPanel(){
-            {
-                setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
-                add(new JLabel("红色：兔子"));
-                add(new JLabel("蓝色：乌龟"));
-            }
-        });
         setVisible(true);
         showPanel.setBackground(Color.WHITE);
         Graphics g = cache.getGraphics();
         g.setColor(Color.WHITE);
         g.fillRect(0,0,cache.getWidth(),cache.getHeight());
         showPanel.repaint();
-        Executor exec = Executors.newCachedThreadPool();
         exec.execute(rabbit);
         exec.execute(turtle);
         boolean gameOverFlag = false;
         while (!gameOverFlag){
             if(rabbit.isGameOver()){
+                exec.shutdownNow();
                 gameOverFlag = true;
                 JOptionPane.showMessageDialog(
                         this,
@@ -69,6 +76,7 @@ public class Race extends JFrame{
                 );
             }
             if(turtle.isGameOver()){
+                exec.shutdownNow();
                 gameOverFlag = true;
                 JOptionPane.showMessageDialog(
                         this,
@@ -106,7 +114,7 @@ abstract class Player implements Runnable{
                 updateRace.update(distance);//更新显示
                 distance+=speed();//增加移动距离
                 //System.out.println(distance);
-                if(distance%restInterval()==0){
+                if(restInterval()>0&&distance%restInterval()==0){
                     //判断是否需要休息
                     TimeUnit.MILLISECONDS.sleep(restTime()/10);
                 }
@@ -115,7 +123,7 @@ abstract class Player implements Runnable{
             }
             isGameOver = true;
         }catch (InterruptedException e){
-            e.printStackTrace();
+            System.out.println("Game Over!");
         }
     }
 
