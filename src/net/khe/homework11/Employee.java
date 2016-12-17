@@ -18,7 +18,7 @@ public class Employee implements Comparable<Employee>{
         this.position = position;
         this.salary = salary;
     }
-
+    public double getSalary(){return salary;}
     @Override
     public String toString(){
         return "Id: "+id+
@@ -51,8 +51,12 @@ public class Employee implements Comparable<Employee>{
         Set<Employee> employeeSet =
                 new HashSet<>(Arrays.asList(employees));
         printEmployees(employeeSet);
-
-        employeeSet = new TreeSet<>(Arrays.asList(employees));
+        employeeSet = new TreeSet<>((Employee lhs,Employee rhs)->{
+            if (lhs.getSalary()<rhs.getSalary())return 1;
+            else if(lhs.getSalary() == rhs.getSalary())return 0;
+            else return -1;
+        });
+        employeeSet.addAll(Arrays.asList(employees));
         printEmployees(employeeSet);
 
         List<Employee> employeeList =
