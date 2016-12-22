@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
  */
 public final class Directory {
     public static File[] local(File dir,final String regex){
+        //¶ÁÈ¡µ±Ç°ÎÄ¼ş¼ĞÏÂµÄÎÄ¼ş£¬Ê¹ÓÃÕıÔò±í´ïÊ½½øĞĞÉ¸Ñ¡
         return dir.listFiles(new FilenameFilter() {
             private Pattern pattern = Pattern.compile(regex);
             @Override
@@ -24,7 +25,7 @@ public final class Directory {
     public static File[] local(String path,String regex){
         return local(new File(path),regex);
     }
-    public static class TreeInfo implements Iterable<File>{//ç›®å½•æ ‘
+    public static class TreeInfo implements Iterable<File>{//Ä¿Â¼Ê÷
         public List<File> files = new ArrayList<>();
         public List<File> dirs = new ArrayList<>();
         @Override
@@ -54,18 +55,20 @@ public final class Directory {
         return recurseDirs(new File(start),".*");
     }
     static TreeInfo recurseDirs(File startDir,String regex){
+        //µİ¹é¶ÁÈ¡
         TreeInfo result = new TreeInfo();
         for(File item:startDir.listFiles()){
-            if(item.isDirectory()){//å¦‚æœæ˜¯ç›®å½•
+            if(item.isDirectory()){//Èç¹ûÊÇÄ¿Â¼
                 result.dirs.add(item);
-                result.addAll(recurseDirs(item,regex));//é€’å½’å­ç›®å½•æ ‘
+                result.addAll(recurseDirs(item,regex));//µİ¹é×ÓÄ¿Â¼Ê÷
             }else if(item.getName().matches(regex))
-                result.files.add(item);//æ·»åŠ åŒ¹é…çš„æ–‡ä»¶
+                result.files.add(item);//Ìí¼ÓÆ¥ÅäµÄÎÄ¼ş
         }
         return result;
     }
 
     public static void main(String[] args) {
+        Print.println("µİ¹é¶ÁÈ¡£º");
         if(args.length == 0)
             Print.println(walk("src/",".*\\.java"));
         else{
@@ -73,7 +76,8 @@ public final class Directory {
                 Print.println(walk(arg));
             }
         }
-        File file = new File("src/net/khe/net.khe.util/");
+        Print.println("½ö¶ÁÈ¡µ±Ç°Ä¿Â¼£º");
+        File file = new File("src/net/khe/util");
         PPrint.pprintln(local(file,".*"));
     }
 }
